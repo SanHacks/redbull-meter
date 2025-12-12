@@ -302,7 +302,15 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddFlavorDialog,
         icon: const Icon(Icons.add),
-        label: const Text('Add Flavor'),
+        label: const Text(
+          'Add Flavor',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        backgroundColor: const Color(0xFF00FF00),
+        foregroundColor: Colors.black,
       ),
     );
   }
@@ -334,99 +342,164 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
 
   /// Builds a card for a single flavor
   Widget _buildFlavorCard(Flavor flavor) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: flavor.imagePath != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  flavor.imagePath!,
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return CircleAvatar(
-                      backgroundColor: flavor.isActive
-                          ? Colors.green.withOpacity(0.2)
-                          : Colors.grey.withOpacity(0.2),
-                      child: Icon(
-                        Icons.local_drink,
-                        color: flavor.isActive ? Colors.green : Colors.grey,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: flavor.isActive
+              ? Colors.green.withOpacity(0.2)
+              : Colors.white.withOpacity(0.05),
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            // Flavor image
+            ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: flavor.imagePath != null
+                    ? Image.asset(
+                        flavor.imagePath!,
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: flavor.isActive
+                                ? Colors.green.withOpacity(0.2)
+                                : Colors.grey.withOpacity(0.2),
+                            child: Icon(
+                              Icons.local_drink,
+                              color: flavor.isActive ? Colors.green : Colors.grey,
+                              size: 32,
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: flavor.isActive
+                              ? Colors.green.withOpacity(0.2)
+                              : Colors.grey.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(
+                          Icons.local_drink,
+                          color: flavor.isActive ? Colors.green : Colors.grey,
+                          size: 32,
+                        ),
                       ),
-                    );
-                  },
-                ),
-              )
-            : CircleAvatar(
-                backgroundColor: flavor.isActive
-                    ? Colors.green.withOpacity(0.2)
-                    : Colors.grey.withOpacity(0.2),
-                child: Icon(
-                  Icons.local_drink,
-                  color: flavor.isActive ? Colors.green : Colors.grey,
-                ),
-              ),
-        title: Text(
-          flavor.name,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            decoration: flavor.isActive ? null : TextDecoration.lineThrough,
-          ),
-        ),
-        subtitle: Text(
-          '${flavor.ml}ml • ${flavor.caffeineMg}mg caffeine',
-          style: TextStyle(
-            color: flavor.isActive ? Colors.grey : Colors.grey[700],
-          ),
-        ),
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            switch (value) {
-              case 'edit':
-                _showEditFlavorDialog(flavor);
-                break;
-              case 'toggle':
-                _toggleFlavorActive(flavor);
-                break;
-              case 'delete':
-                _deleteFlavor(flavor);
-                break;
-            }
-          },
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit, size: 20),
-                  SizedBox(width: 8),
-                  Text('Edit'),
-                ],
-              ),
             ),
-            PopupMenuItem(
-              value: 'toggle',
-              child: Row(
+            const SizedBox(width: 16),
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    flavor.isActive ? Icons.visibility_off : Icons.visibility,
-                    size: 20,
+                  Text(
+                    flavor.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      decoration: flavor.isActive ? null : TextDecoration.lineThrough,
+                      color: flavor.isActive ? Colors.white : Colors.grey[600],
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(flavor.isActive ? 'Deactivate' : 'Activate'),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.water_drop,
+                        size: 14,
+                        color: Colors.blue[300],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${flavor.ml}ml',
+                        style: TextStyle(
+                          color: flavor.isActive
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.bolt,
+                        size: 14,
+                        color: Colors.yellow[300],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${flavor.caffeineMg}mg caffeine',
+                        style: TextStyle(
+                          color: flavor.isActive
+                              ? Colors.grey[400]
+                              : Colors.grey[700],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, size: 20, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Delete', style: TextStyle(color: Colors.red)),
-                ],
-              ),
+            // Menu button
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                switch (value) {
+                  case 'edit':
+                    _showEditFlavorDialog(flavor);
+                    break;
+                  case 'toggle':
+                    _toggleFlavorActive(flavor);
+                    break;
+                  case 'delete':
+                    _deleteFlavor(flavor);
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      SizedBox(width: 8),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'toggle',
+                  child: Row(
+                    children: [
+                      Icon(
+                        flavor.isActive ? Icons.visibility_off : Icons.visibility,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(flavor.isActive ? 'Deactivate' : 'Activate'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 20, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Delete', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

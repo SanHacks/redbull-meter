@@ -191,103 +191,202 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
 
   /// Builds the flavor selector dropdown
   Widget _buildFlavorSelector() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Flavor',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<Flavor>(
-              value: _selectedFlavor,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-              items: _flavors.map((flavor) {
-                return DropdownMenuItem(
-                  value: flavor,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (flavor.imagePath != null) ...[
-                        Image.asset(
-                          flavor.imagePath!,
-                          width: 32,
-                          height: 32,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.local_drink, size: 24);
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                      ],
-                      Flexible(
-                        child: Text(
-                          flavor.name,
-                          style: const TextStyle(fontSize: 14),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() => _selectedFlavor = value);
-              },
-              validator: (value) {
-                if (value == null) {
-                  return 'Please select a flavor';
-                }
-                return null;
-              },
-            ),
-            if (_selectedFlavor != null) ...[
-              const SizedBox(height: 12),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.05),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  '${_selectedFlavor!.ml}ml • ${_selectedFlavor!.caffeineMg}mg caffeine',
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                child: const Icon(
+                  Icons.local_drink,
+                  color: Colors.green,
+                  size: 20,
                 ),
               ),
+              const SizedBox(width: 12),
+              Text(
+                'Flavor',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+              ),
             ],
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<Flavor>(
+            value: _selectedFlavor,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFF0F0F0F),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFF00FF00),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            items: _flavors.map((flavor) {
+              return DropdownMenuItem(
+                value: flavor,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (flavor.imagePath != null) ...[
+                      Image.asset(
+                        flavor.imagePath!,
+                        width: 32,
+                        height: 32,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.local_drink, size: 24);
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    Flexible(
+                      child: Text(
+                        flavor.name,
+                        style: const TextStyle(fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() => _selectedFlavor = value);
+            },
+            validator: (value) {
+              if (value == null) {
+                return 'Please select a flavor';
+              }
+              return null;
+            },
+          ),
+          if (_selectedFlavor != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.green.withOpacity(0.15),
+                    Colors.blue.withOpacity(0.15),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.green.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.water_drop, size: 16, color: Colors.blue[300]),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${_selectedFlavor!.ml}ml',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[300],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Icon(Icons.bolt, size: 16, color: Colors.yellow[300]),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${_selectedFlavor!.caffeineMg}mg caffeine',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[300],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
 
   /// Builds the price input field
   Widget _buildPriceField() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Price',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _priceController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.05),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.blue,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Price',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _priceController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 prefixIcon: Align(
                   alignment: Alignment.centerLeft,
@@ -304,10 +403,10 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
                     ),
                   ),
                 ),
-                hintText: '0.00',
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-              validator: (value) {
+              hintText: '0.00',
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter a price';
                 }
@@ -315,51 +414,108 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
                 if (price == null || price < 0) {
                   return 'Please enter a valid price';
                 }
-                return null;
-              },
-            ),
-          ],
-        ),
+              return null;
+            },
+          ),
+        ],
       ),
     );
   }
 
   /// Builds the date and time selector
   Widget _buildDateTimeSelector() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Date & Time',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.05),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.purple.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.calendar_today,
+                  color: Colors.purple,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Date & Time',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _selectDate,
-                    icon: const Icon(Icons.calendar_today),
-                    label: Text(DateFormat('MMM dd, yyyy').format(_selectedDateTime)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F0F0F),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                        width: 1,
+                      ),
+                    ),
+                    child: OutlinedButton.icon(
+                      onPressed: _selectDate,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide.none,
+                      ),
+                      icon: const Icon(Icons.calendar_today, size: 20),
+                      label: Text(
+                        DateFormat('MMM dd, yyyy').format(_selectedDateTime),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _selectTime,
-                    icon: const Icon(Icons.access_time),
-                    label: Text(DateFormat('HH:mm').format(_selectedDateTime)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F0F0F),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                        width: 1,
+                      ),
+                    ),
+                    child: OutlinedButton.icon(
+                      onPressed: _selectTime,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide.none,
+                      ),
+                      icon: const Icon(Icons.access_time, size: 20),
+                      label: Text(
+                        DateFormat('HH:mm').format(_selectedDateTime),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
                   ),
                 ),
               ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -367,21 +523,48 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
   /// Builds the notes input field
   /// Builds the save button
   Widget _buildSaveButton() {
-    return ElevatedButton(
-      onPressed: _isSaving ? null : _saveDrink,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF00FF00), Color(0xFF00CC00)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00FF00).withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: _isSaving
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Text(
-              'Save Drink',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+      child: ElevatedButton(
+        onPressed: _isSaving ? null : _saveDrink,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: _isSaving
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                ),
+              )
+            : const Text(
+                'Save Drink',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+      ),
     );
   }
 }

@@ -23,12 +23,51 @@ class MonsterMeterApp extends StatelessWidget {
           seedColor: const Color(0xFF00FF00),
           brightness: Brightness.dark,
         ),
-        scaffoldBackgroundColor: const Color(0xFF1a1a1a),
+        scaffoldBackgroundColor: const Color(0xFF0F0F0F),
         cardTheme: CardThemeData(
-          color: const Color(0xFF2a2a2a),
-          elevation: 4,
+          color: const Color(0xFF1E1E1E),
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: Colors.white.withOpacity(0.05),
+              width: 1,
+            ),
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          backgroundColor: const Color(0xFF0F0F0F),
+          foregroundColor: Colors.white,
+          centerTitle: false,
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFF1E1E1E),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: Colors.white.withOpacity(0.1),
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: Colors.white.withOpacity(0.1),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(
+              color: Color(0xFF00FF00),
+              width: 2,
+            ),
           ),
         ),
       ),

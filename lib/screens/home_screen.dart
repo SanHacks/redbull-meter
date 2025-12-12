@@ -157,7 +157,15 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _navigateToAddDrink,
         icon: const Icon(Icons.add),
-        label: const Text('Add Drink'),
+        label: const Text(
+          'Add Drink',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        backgroundColor: const Color(0xFF00FF00),
+        foregroundColor: Colors.black,
       ),
     );
   }
@@ -167,11 +175,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Today's Stats",
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+        Row(
+          children: [
+            Text(
+              "Today's Stats",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         Row(
@@ -216,24 +229,51 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Builds a single statistics card
   Widget _buildStatCard(String label, String value, IconData icon, Color color) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color.withOpacity(0.15),
+            color.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 28, color: color),
+            ),
+            const SizedBox(height: 12),
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: color,
+                    fontSize: 24,
                   ),
             ),
+            const SizedBox(height: 4),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[400],
+                    fontSize: 12,
+                    letterSpacing: 0.5,
                   ),
             ),
           ],
@@ -247,29 +287,62 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Today's Drinks",
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+        Row(
+          children: [
+            Text(
+              "Today's Drinks",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         if (_todaysLogs.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(Icons.local_drink_outlined,
-                        size: 48, color: Colors.grey[600]),
-                    const SizedBox(height: 8),
-                    Text(
-                      'No drinks logged today',
-                      style: TextStyle(color: Colors.grey[600]),
+          Container(
+            padding: const EdgeInsets.all(40),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.05),
+                width: 1,
+              ),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      shape: BoxShape.circle,
                     ),
-                  ],
-                ),
+                    child: Icon(
+                      Icons.local_drink_outlined,
+                      size: 48,
+                      color: Colors.green[300],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No drinks logged today',
+                    style: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap the button below to add your first drink!',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           )
@@ -293,46 +366,152 @@ class _HomeScreenState extends State<HomeScreen> {
     final flavor = logWithFlavor.flavor;
     final time = DateFormat('HH:mm').format(DateTime.parse(log.timestamp));
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: flavor.imagePath != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  flavor.imagePath!,
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return CircleAvatar(
-                      backgroundColor: Colors.green.withOpacity(0.2),
-                      child: const Icon(Icons.local_drink, color: Colors.green),
-                    );
-                  },
-                ),
-              )
-            : CircleAvatar(
-                backgroundColor: Colors.green.withOpacity(0.2),
-                child: const Icon(Icons.local_drink, color: Colors.green),
-              ),
-        title: Text(
-          flavor.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.05),
+          width: 1,
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
           children: [
-            Text('${flavor.ml}ml • ${flavor.caffeineMg}mg caffeine'),
-            Text('${CurrencyHelper.formatPriceCached(log.pricePaid)} • $time'),
-            if (log.notes != null && log.notes!.isNotEmpty)
-              Text(log.notes!, style: const TextStyle(fontStyle: FontStyle.italic)),
+            // Flavor image
+            ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: flavor.imagePath != null
+                    ? Image.asset(
+                        flavor.imagePath!,
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.green.withOpacity(0.2),
+                            child: const Icon(
+                              Icons.local_drink,
+                              color: Colors.green,
+                              size: 32,
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(
+                          Icons.local_drink,
+                          color: Colors.green,
+                          size: 32,
+                        ),
+                      ),
+            ),
+            const SizedBox(width: 16),
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    flavor.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.water_drop,
+                        size: 14,
+                        color: Colors.blue[300],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${flavor.ml}ml',
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.bolt,
+                        size: 14,
+                        color: Colors.yellow[300],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${flavor.caffeineMg}mg',
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.account_balance_wallet,
+                        size: 14,
+                        color: Colors.green[300],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        CurrencyHelper.formatPriceCached(log.pricePaid),
+                        style: TextStyle(
+                          color: Colors.grey[300],
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Colors.grey[500],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        time,
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Delete button
+            IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.red,
+                  size: 20,
+                ),
+              ),
+              onPressed: () => _deleteLog(log.id!),
+            ),
           ],
-        ),
-        isThreeLine: true,
-        trailing: IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.red),
-          onPressed: () => _deleteLog(log.id!),
         ),
       ),
     );
