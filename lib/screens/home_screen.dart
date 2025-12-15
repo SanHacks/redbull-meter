@@ -7,6 +7,7 @@ import 'add_drink_screen.dart';
 import 'history_screen.dart';
 import 'manage_flavors_screen.dart';
 import 'settings_screen.dart';
+import 'statistics_screen.dart';
 
 /// Home screen displaying today's drink statistics and recent drinks
 class HomeScreen extends StatefulWidget {
@@ -87,6 +88,14 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadData();
   }
 
+  /// Navigates to statistics screen
+  Future<void> _navigateToStatistics() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const StatisticsScreen()),
+    );
+  }
+
   /// Deletes a log entry with confirmation
   Future<void> _deleteLog(int logId) async {
     final confirmed = await showDialog<bool>(
@@ -120,6 +129,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Monster Meter'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart),
+            onPressed: _navigateToStatistics,
+            tooltip: 'Statistics',
+          ),
           IconButton(
             icon: const Icon(Icons.local_drink),
             onPressed: _navigateToManageFlavors,

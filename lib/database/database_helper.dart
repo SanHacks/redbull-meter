@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:intl/intl.dart';
 import '../models/user.dart';
 import '../models/flavor.dart';
 import '../models/log.dart';
@@ -288,6 +289,158 @@ class DatabaseHelper {
 
     final total = result.first['total'];
     return total != null ? (total as num).toDouble() : 0.0;
+  }
+
+  /// Gets weekly statistics for a specific week
+  /// [startDate] should be the start of the week (Monday) in 'yyyy-MM-dd' format
+  Future<Map<String, dynamic>> getWeeklyStats({String? startDate}) async {
+    final db = await database;
+    final weekStart = startDate ?? 
+        DateFormat('yyyy-MM-dd').format(
+          DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1))
+        );
+    
+    final result = await db.rawQuery('''
+      SELECT 
+        DATE(l.timestamp) as date,
+        COUNT(*) as drinks,
+        SUM(f.caffeine_mg) as caffeine,
+        SUM(l.price_paid) as spending
+      FROM logs l
+      INNER JOIN flavors f ON l.flavor_id = f.id
+      WHERE DATE(l.timestamp) >= DATE(?)
+        AND DATE(l.timestamp) < DATE(?, '+7 days')
+      GROUP BY DATE(l.timestamp)
+      ORDER BY DATE(l.timestamp) ASC
+    ''', [weekStart, weekStart]);
+
+    int totalDrinks = 0;
+    int totalCaffeine = 0;
+    double totalSpending = 0.0;
+    final dailyData = <String, Map<String, dynamic>>{};
+
+    for (var row in result) {
+      final date = row['date'] as String;
+      final drinks = (row['drinks'] as num?)?.toInt() ?? 0;
+      final caffeine = (row['caffeine'] as num?)?.toInt() ?? 0;
+      final spending = (row['spending'] as num?)?.toDouble() ?? 0.0;
+
+      totalDrinks += drinks;
+      totalCaffeine += caffeine;
+      totalSpending += spending;
+
+      dailyData[date] = {
+        'drinks': drinks,
+        'caffeine': caffeine,
+        'spending': spending,
+      };
+    }
+
+    return {
+      'totalDrinks': totalDrinks,
+      'totalCaffeine': totalCaffeine,
+      'totalSpending': totalSpending,
+      'dailyData': dailyData,
+    };
+  }
+
+  /// Gets monthly statistics for a specific month
+  /// [year] and [month] should be the year and month (1-12) to query
+  /// Returns weekly aggregated data for the month
+  Future<Map<String, dynamic>> getMonthlyStats({int? year, int? month}) async {
+    final db = await database;
+    final now = DateTime.now();
+    final targetYear = year ?? now.year;
+    final targetMonth = month ?? now.month;
+    final monthStart = '$targetYear-${targetMonth.toString().padLeft(2, '0')}-01';
+    
+    // Get daily data first
+    final dailyResult = await db.rawQuery('''
+      SELECT 
+        DATE(l.timestamp) as date,
+        COUNT(*) as drinks,
+        SUM(f.caffeine_mg) as caffeine,
+        SUM(l.price_paid) as spending
+      FROM logs l
+      INNER JOIN flavors f ON l.flavor_id = f.id
+      WHERE strftime('%Y-%m', l.timestamp) = strftime('%Y-%m', ?)
+      GROUP BY DATE(l.timestamp)
+      ORDER BY DATE(l.timestamp) ASC
+    ''', [monthStart]);
+
+    // Aggregate by week
+    final weeklyData = <String, Map<String, dynamic>>{};
+    int totalDrinks = 0;
+    int totalCaffeine = 0;
+    double totalSpending = 0.0;
+
+    for (var row in dailyResult) {
+      final dateStr = row['date'] as String;
+      final date = DateTime.parse(dateStr);
+      // Get the start of the week (Monday) for this date
+      final weekStart = date.subtract(Duration(days: date.weekday - 1));
+      final weekKey = DateFormat('yyyy-MM-dd').format(weekStart);
+      
+      final drinks = (row['drinks'] as num?)?.toInt() ?? 0;
+      final caffeine = (row['caffeine'] as num?)?.toInt() ?? 0;
+      final spending = (row['spending'] as num?)?.toDouble() ?? 0.0;
+
+      if (weeklyData.containsKey(weekKey)) {
+        weeklyData[weekKey]!['drinks'] = 
+            (weeklyData[weekKey]!['drinks'] as int) + drinks;
+        weeklyData[weekKey]!['caffeine'] = 
+            (weeklyData[weekKey]!['caffeine'] as int) + caffeine;
+        weeklyData[weekKey]!['spending'] = 
+            (weeklyData[weekKey]!['spending'] as double) + spending;
+      } else {
+        weeklyData[weekKey] = {
+          'drinks': drinks,
+          'caffeine': caffeine,
+          'spending': spending,
+        };
+      }
+
+      totalDrinks += drinks;
+      totalCaffeine += caffeine;
+      totalSpending += spending;
+    }
+
+    return {
+      'totalDrinks': totalDrinks,
+      'totalCaffeine': totalCaffeine,
+      'totalSpending': totalSpending,
+      'dailyData': weeklyData, // Actually weekly data for monthly view
+      'year': targetYear,
+      'month': targetMonth,
+    };
+  }
+
+  /// Gets most drank flavor statistics
+  Future<List<Map<String, dynamic>>> getMostDrankFlavors({int limit = 10}) async {
+    final db = await database;
+    final result = await db.rawQuery('''
+      SELECT 
+        f.id,
+        f.name,
+        f.image_path,
+        COUNT(l.id) as drink_count,
+        SUM(f.caffeine_mg) as total_caffeine,
+        SUM(l.price_paid) as total_spending
+      FROM logs l
+      INNER JOIN flavors f ON l.flavor_id = f.id
+      GROUP BY f.id, f.name, f.image_path
+      ORDER BY drink_count DESC
+      LIMIT ?
+    ''', [limit]);
+
+    return result.map((row) => {
+      'id': row['id'] as int,
+      'name': row['name'] as String,
+      'imagePath': row['image_path'] as String?,
+      'drinkCount': (row['drink_count'] as num?)?.toInt() ?? 0,
+      'totalCaffeine': (row['total_caffeine'] as num?)?.toInt() ?? 0,
+      'totalSpending': (row['total_spending'] as num?)?.toDouble() ?? 0.0,
+    }).toList();
   }
 
   /// Deletes a log entry
