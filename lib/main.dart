@@ -5,47 +5,52 @@ import 'utils/currency_helper.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await CurrencyHelper.initialize();
-  runApp(const MonsterMeterApp());
+  runApp(const RedBullMeterApp());
 }
 
 /// Main application widget
-class MonsterMeterApp extends StatelessWidget {
-  const MonsterMeterApp({super.key});
+class RedBullMeterApp extends StatelessWidget {
+  const RedBullMeterApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Monster Meter',
+      title: 'Red Bull Meter',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.blue,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF00FF00),
-          brightness: Brightness.dark,
+          seedColor: const Color(0xFFFF0000), // Red Bull red
+          brightness: Brightness.light,
+          primary: const Color(0xFFFF0000),
+          secondary: const Color(0xFFFFCC00), // Red Bull yellow
         ),
-        scaffoldBackgroundColor: const Color(0xFF0F0F0F),
+        scaffoldBackgroundColor: Colors.white,
         cardTheme: CardThemeData(
-          color: const Color(0xFF1E1E1E),
-          elevation: 0,
+          color: Colors.white,
+          elevation: 4,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(
-              color: Colors.white.withOpacity(0.05),
-              width: 1,
-            ),
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xFFE5E5E5)),
           ),
+          margin: const EdgeInsets.all(8.0),
         ),
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           elevation: 0,
-          backgroundColor: const Color(0xFF0F0F0F),
+          backgroundColor: Color(0xFFFF0000), // Red Bull red
           foregroundColor: Colors.white,
-          centerTitle: false,
-        ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color(0xFFFF0000), // Red Bull red
+          foregroundColor: Colors.white,
+          elevation: 8,
+          shape: CircleBorder(),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
@@ -53,13 +58,13 @@ class MonsterMeterApp extends StatelessWidget {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             ),
           ),
           focusedBorder: OutlineInputBorder(

@@ -27,7 +27,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3, // Increment version to trigger onUpgrade
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -37,6 +37,31 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE flavors ADD COLUMN image_path TEXT');
+    }
+    
+    if (oldVersion < 3) {
+      // Clear existing flavors to replace with Red Bull flavors
+      await db.delete('flavors');
+      
+      // Insert Red Bull flavors
+      final redBullFlavors = [
+        {'name': 'Red Bull Original', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_original.png'},
+        {'name': 'Red Bull Sugarfree', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_sugarfree.png'},
+        {'name': 'Red Bull Zero', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_zero.png'},
+        {'name': 'Red Bull Red Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_red.png'},
+        {'name': 'Red Bull Blue Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_blue.png'},
+        {'name': 'Red Bull Yellow Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_yellow.png'},
+        {'name': 'Red Bull Green Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_green.png'},
+        {'name': 'Red Bull Purple Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_purple.png'},
+        {'name': 'Red Bull Peach Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_peach.png'},
+        {'name': 'Red Bull Summer Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_summer.png'},
+        {'name': 'Red Bull Winter Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_winter.png'},
+        {'name': 'Red Bull Amber Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_amber.png'},
+      ];
+
+      for (var flavor in redBullFlavors) {
+        await db.insert('flavors', flavor);
+      }
     }
   }
 
@@ -79,19 +104,20 @@ class DatabaseHelper {
     // Insert default user
     await db.insert('users', {'username': 'default_user'});
 
-    // Insert some popular Monster Energy flavors with images
+    // Insert some popular Red Bull flavors with images
     final defaultFlavors = [
-      {'name': 'Original', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/orginal-monster.webp'},
-      {'name': 'Pipeline Punch', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/pipeline-punch.webp'},
-      {'name': 'Pacific Punch', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/pacific-punch.webp'},
-      {'name': 'Rio Punch', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/rio-punch.webp'},
-      {'name': 'Mango Loco', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/mucho-loco.webp'},
-      {'name': 'Zero Sugar Ultra', 'ml': 500, 'caffeine_mg': 140, 'is_active': 1, 'image_path': 'assets/images/flavors/Zero-sugar-ultra.webp'},
-      {'name': 'Zero Sugar Ultra Rosa', 'ml': 500, 'caffeine_mg': 140, 'is_active': 1, 'image_path': 'assets/images/flavors/Zero-sugar-ultra-rosa.webp'},
-      {'name': 'Aussie Lemonade', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/Aussie-lemonade.webp'},
-      {'name': 'Peachy Keen', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/peachy-keen.webp'},
-      {'name': 'The Doctor', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/The-doctor.webp'},
-      {'name': 'Lando Norris', 'ml': 500, 'caffeine_mg': 160, 'is_active': 1, 'image_path': 'assets/images/flavors/Lando-norris.webp'},
+      {'name': 'Red Bull Original', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_original.png'},
+      {'name': 'Red Bull Sugarfree', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_sugarfree.png'},
+      {'name': 'Red Bull Zero', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_zero.png'},
+      {'name': 'Red Bull Red Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_red.png'},
+      {'name': 'Red Bull Blue Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_blue.png'},
+      {'name': 'Red Bull Yellow Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_yellow.png'},
+      {'name': 'Red Bull Green Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_green.png'},
+      {'name': 'Red Bull Purple Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_purple.png'},
+      {'name': 'Red Bull Peach Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_peach.png'},
+      {'name': 'Red Bull Summer Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_summer.png'},
+      {'name': 'Red Bull Winter Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_winter.png'},
+      {'name': 'Red Bull Amber Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_amber.png'},
     ];
 
     for (var flavor in defaultFlavors) {
