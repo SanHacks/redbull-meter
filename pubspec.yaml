@@ -1,5 +1,5 @@
-name: monster_meter
-description: Track your Monster Energy drink consumption
+name: redbull_meter
+description: Track your Red Bull energy drink consumption
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -30,7 +30,7 @@ flutter:
 
 flutter_launcher_icons:
   android: true
-  image_path: "assets/images/icons/Monster-Meter-icon.png"
+  image_path: "assets/images/icons/RedBull-Meter-icon.png"
   adaptive_icon_background: "#000000"
-  adaptive_icon_foreground: "Monster-Meter-icon-padded.png"
+  adaptive_icon_foreground: "RedBull-Meter-icon-padded.png"
 

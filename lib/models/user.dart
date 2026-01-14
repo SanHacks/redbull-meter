@@ -35,5 +35,21 @@ class User {
       username: username ?? this.username,
     );
   }
+
+  @override
+  String toString() {
+    return 'User(id: $id, username: $username)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is User && other.id == id && other.username == username;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(id, username);
+  }
 }
 

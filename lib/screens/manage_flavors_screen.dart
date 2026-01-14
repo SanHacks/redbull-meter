@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../database/database_helper.dart';
 import '../models/flavor.dart';
 
-/// Screen for managing Monster Energy flavors
+/// Screen for managing Red Bull energy drink flavors
 class ManageFlavorsScreen extends StatefulWidget {
   const ManageFlavorsScreen({super.key});
 
@@ -331,7 +331,7 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Add your first Monster Energy flavor',
+              'Add your first Red Bull flavor',
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],

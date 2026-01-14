@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:monster_meter/main.dart';
+import 'package:redbull_meter/main.dart';
 
 void main() {
   testWidgets('Red Bull Meter app smoke test', (WidgetTester tester) async {

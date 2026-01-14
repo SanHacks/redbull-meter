@@ -1,4 +1,4 @@
-/// Model class representing a Monster Energy flavor in the database
+/// Model class representing a Red Bull energy drink flavor in the database
 class Flavor {
   final int? id;
   final String name;
@@ -58,6 +58,28 @@ class Flavor {
       isActive: isActive ?? this.isActive,
       imagePath: imagePath ?? this.imagePath,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Flavor(id: $id, name: $name, ml: $ml, caffeineMg: $caffeineMg, isActive: $isActive, imagePath: $imagePath)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Flavor &&
+        other.id == id &&
+        other.name == name &&
+        other.ml == ml &&
+        other.caffeineMg == caffeineMg &&
+        other.isActive == isActive &&
+        other.imagePath == imagePath;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(id, name, ml, caffeineMg, isActive, imagePath);
   }
 }
 

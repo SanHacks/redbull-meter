@@ -11,5 +11,21 @@ class LogWithFlavor {
     required this.log,
     required this.flavor,
   });
+
+  @override
+  String toString() {
+    return 'LogWithFlavor(log: $log, flavor: $flavor)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is LogWithFlavor && other.log == log && other.flavor == flavor;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(log, flavor);
+  }
 }
 

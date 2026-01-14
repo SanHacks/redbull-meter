@@ -16,7 +16,7 @@ class DatabaseHelper {
   /// Gets the database instance, creating it if it doesn't exist
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('monster_meter.db');
+    _database = await _initDB('redbull_meter.db');
     return _database!;
   }
 
@@ -27,7 +27,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3, // Increment version to trigger onUpgrade
+      version: 4, // Increment version to trigger onUpgrade for Red Bull rebrand
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -40,23 +40,28 @@ class DatabaseHelper {
     }
     
     if (oldVersion < 3) {
+      // Legacy Monster Energy flavors migration
+      await db.delete('flavors');
+    }
+    
+    if (oldVersion < 4) {
       // Clear existing flavors to replace with Red Bull flavors
       await db.delete('flavors');
       
-      // Insert Red Bull flavors
+      // Insert Red Bull flavors (250ml cans, 80mg caffeine standard)
       final redBullFlavors = [
-        {'name': 'Red Bull Original', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_original.png'},
-        {'name': 'Red Bull Sugarfree', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_sugarfree.png'},
-        {'name': 'Red Bull Zero', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_zero.png'},
-        {'name': 'Red Bull Red Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_red.png'},
-        {'name': 'Red Bull Blue Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_blue.png'},
-        {'name': 'Red Bull Yellow Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_yellow.png'},
-        {'name': 'Red Bull Green Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_green.png'},
-        {'name': 'Red Bull Purple Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_purple.png'},
-        {'name': 'Red Bull Peach Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_peach.png'},
-        {'name': 'Red Bull Summer Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_summer.png'},
-        {'name': 'Red Bull Winter Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_winter.png'},
-        {'name': 'Red Bull Amber Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_amber.png'},
+        {'name': 'Red Bull Original', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-original.webp'},
+        {'name': 'Red Bull Sugarfree', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-sugarfree.webp'},
+        {'name': 'Red Bull Zero', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-zero.webp'},
+        {'name': 'Red Bull Red Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-red-edition.webp'},
+        {'name': 'Red Bull Blue Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-blue-edition.webp'},
+        {'name': 'Red Bull Yellow Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-yellow-edition.webp'},
+        {'name': 'Red Bull Green Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-green-edition.webp'},
+        {'name': 'Red Bull Purple Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-purple-edition.webp'},
+        {'name': 'Red Bull Peach Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-peach-edition.webp'},
+        {'name': 'Red Bull Summer Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-summer-edition.webp'},
+        {'name': 'Red Bull Winter Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-winter-edition.webp'},
+        {'name': 'Red Bull Amber Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-amber-edition.webp'},
       ];
 
       for (var flavor in redBullFlavors) {
@@ -104,20 +109,20 @@ class DatabaseHelper {
     // Insert default user
     await db.insert('users', {'username': 'default_user'});
 
-    // Insert some popular Red Bull flavors with images
+    // Insert Red Bull flavors (250ml cans, 80mg caffeine standard)
     final defaultFlavors = [
-      {'name': 'Red Bull Original', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_original.png'},
-      {'name': 'Red Bull Sugarfree', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_sugarfree.png'},
-      {'name': 'Red Bull Zero', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_zero.png'},
-      {'name': 'Red Bull Red Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_red.png'},
-      {'name': 'Red Bull Blue Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_blue.png'},
-      {'name': 'Red Bull Yellow Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_yellow.png'},
-      {'name': 'Red Bull Green Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_green.png'},
-      {'name': 'Red Bull Purple Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_purple.png'},
-      {'name': 'Red Bull Peach Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_peach.png'},
-      {'name': 'Red Bull Summer Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_summer.png'},
-      {'name': 'Red Bull Winter Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_winter.png'},
-      {'name': 'Red Bull Amber Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull_amber.png'},
+      {'name': 'Red Bull Original', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-original.webp'},
+      {'name': 'Red Bull Sugarfree', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-sugarfree.webp'},
+      {'name': 'Red Bull Zero', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-zero.webp'},
+      {'name': 'Red Bull Red Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-red-edition.webp'},
+      {'name': 'Red Bull Blue Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-blue-edition.webp'},
+      {'name': 'Red Bull Yellow Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-yellow-edition.webp'},
+      {'name': 'Red Bull Green Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-green-edition.webp'},
+      {'name': 'Red Bull Purple Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-purple-edition.webp'},
+      {'name': 'Red Bull Peach Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-peach-edition.webp'},
+      {'name': 'Red Bull Summer Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-summer-edition.webp'},
+      {'name': 'Red Bull Winter Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-winter-edition.webp'},
+      {'name': 'Red Bull Amber Edition', 'ml': 250, 'caffeine_mg': 80, 'is_active': 1, 'image_path': 'assets/images/flavors/redbull-amber-edition.webp'},
     ];
 
     for (var flavor in defaultFlavors) {
@@ -129,9 +134,13 @@ class DatabaseHelper {
 
   /// Creates a new user
   Future<User> createUser(User user) async {
-    final db = await database;
-    final id = await db.insert('users', user.toMap());
-    return user.copyWith(id: id);
+    try {
+      final db = await database;
+      final id = await db.insert('users', user.toMap());
+      return user.copyWith(id: id);
+    } catch (e) {
+      throw Exception('Failed to create user: $e');
+    }
   }
 
   /// Gets a user by ID
@@ -164,22 +173,30 @@ class DatabaseHelper {
 
   /// Creates a new flavor
   Future<Flavor> createFlavor(Flavor flavor) async {
-    final db = await database;
-    final id = await db.insert('flavors', flavor.toMap());
-    return flavor.copyWith(id: id);
+    try {
+      final db = await database;
+      final id = await db.insert('flavors', flavor.toMap());
+      return flavor.copyWith(id: id);
+    } catch (e) {
+      throw Exception('Failed to create flavor: $e');
+    }
   }
 
   /// Gets all active flavors
   Future<List<Flavor>> getActiveFlavors() async {
-    final db = await database;
-    final maps = await db.query(
-      'flavors',
-      where: 'is_active = ?',
-      whereArgs: [1],
-      orderBy: 'name ASC',
-    );
+    try {
+      final db = await database;
+      final maps = await db.query(
+        'flavors',
+        where: 'is_active = ?',
+        whereArgs: [1],
+        orderBy: 'name ASC',
+      );
 
-    return maps.map((map) => Flavor.fromMap(map)).toList();
+      return maps.map((map) => Flavor.fromMap(map)).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   /// Gets all flavors (including inactive)
@@ -206,32 +223,44 @@ class DatabaseHelper {
 
   /// Updates a flavor
   Future<int> updateFlavor(Flavor flavor) async {
-    final db = await database;
-    return db.update(
-      'flavors',
-      flavor.toMap(),
-      where: 'id = ?',
-      whereArgs: [flavor.id],
-    );
+    try {
+      final db = await database;
+      return await db.update(
+        'flavors',
+        flavor.toMap(),
+        where: 'id = ?',
+        whereArgs: [flavor.id],
+      );
+    } catch (e) {
+      throw Exception('Failed to update flavor: $e');
+    }
   }
 
   /// Deletes a flavor
   Future<int> deleteFlavor(int id) async {
-    final db = await database;
-    return db.delete(
-      'flavors',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    try {
+      final db = await database;
+      return await db.delete(
+        'flavors',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw Exception('Failed to delete flavor: $e');
+    }
   }
 
   // LOG OPERATIONS
 
   /// Creates a new log entry
   Future<Log> createLog(Log log) async {
-    final db = await database;
-    final id = await db.insert('logs', log.toMap());
-    return log.copyWith(id: id);
+    try {
+      final db = await database;
+      final id = await db.insert('logs', log.toMap());
+      return log.copyWith(id: id);
+    } catch (e) {
+      throw Exception('Failed to create log entry: $e');
+    }
   }
 
   /// Gets all logs
@@ -243,78 +272,98 @@ class DatabaseHelper {
 
   /// Gets logs for a specific date
   Future<List<LogWithFlavor>> getLogsByDate(String date) async {
-    final db = await database;
-    final maps = await db.rawQuery('''
-      SELECT l.*, f.name, f.ml, f.caffeine_mg, f.is_active, f.image_path
-      FROM logs l
-      INNER JOIN flavors f ON l.flavor_id = f.id
-      WHERE DATE(l.timestamp) = DATE(?)
-      ORDER BY l.timestamp DESC
-    ''', [date]);
+    try {
+      final db = await database;
+      final maps = await db.rawQuery('''
+        SELECT l.*, f.name, f.ml, f.caffeine_mg, f.is_active, f.image_path
+        FROM logs l
+        INNER JOIN flavors f ON l.flavor_id = f.id
+        WHERE DATE(l.timestamp) = DATE(?)
+        ORDER BY l.timestamp DESC
+      ''', [date]);
 
-    return maps.map((map) {
-      return LogWithFlavor(
-        log: Log.fromMap(map),
-        flavor: Flavor.fromMap(map),
-      );
-    }).toList();
+      return maps.map((map) {
+        return LogWithFlavor(
+          log: Log.fromMap(map),
+          flavor: Flavor.fromMap(map),
+        );
+      }).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   /// Gets all logs with flavor details
   Future<List<LogWithFlavor>> getLogsWithFlavors() async {
-    final db = await database;
-    final maps = await db.rawQuery('''
-      SELECT l.*, f.name, f.ml, f.caffeine_mg, f.is_active, f.image_path
-      FROM logs l
-      INNER JOIN flavors f ON l.flavor_id = f.id
-      ORDER BY l.timestamp DESC
-    ''');
+    try {
+      final db = await database;
+      final maps = await db.rawQuery('''
+        SELECT l.*, f.name, f.ml, f.caffeine_mg, f.is_active, f.image_path
+        FROM logs l
+        INNER JOIN flavors f ON l.flavor_id = f.id
+        ORDER BY l.timestamp DESC
+      ''');
 
-    return maps.map((map) {
-      return LogWithFlavor(
-        log: Log.fromMap(map),
-        flavor: Flavor.fromMap(map),
-      );
-    }).toList();
+      return maps.map((map) {
+        return LogWithFlavor(
+          log: Log.fromMap(map),
+          flavor: Flavor.fromMap(map),
+        );
+      }).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   /// Gets today's caffeine total
   Future<int> getTodaysCaffeineTotal() async {
-    final db = await database;
-    final result = await db.rawQuery('''
-      SELECT SUM(f.caffeine_mg) as total
-      FROM logs l
-      INNER JOIN flavors f ON l.flavor_id = f.id
-      WHERE DATE(l.timestamp) = DATE('now', 'localtime')
-    ''');
+    try {
+      final db = await database;
+      final result = await db.rawQuery('''
+        SELECT SUM(f.caffeine_mg) as total
+        FROM logs l
+        INNER JOIN flavors f ON l.flavor_id = f.id
+        WHERE DATE(l.timestamp) = DATE('now', 'localtime')
+      ''');
 
-    final total = result.first['total'];
-    return total != null ? (total as num).toInt() : 0;
+      final total = result.first['total'];
+      return total != null ? (total as num).toInt() : 0;
+    } catch (e) {
+      return 0;
+    }
   }
 
   /// Gets today's drink count
   Future<int> getTodaysDrinkCount() async {
-    final db = await database;
-    final result = await db.rawQuery('''
-      SELECT COUNT(*) as count
-      FROM logs
-      WHERE DATE(timestamp) = DATE('now', 'localtime')
-    ''');
+    try {
+      final db = await database;
+      final result = await db.rawQuery('''
+        SELECT COUNT(*) as count
+        FROM logs
+        WHERE DATE(timestamp) = DATE('now', 'localtime')
+      ''');
 
-    return (result.first['count'] as int?) ?? 0;
+      return (result.first['count'] as int?) ?? 0;
+    } catch (e) {
+      return 0;
+    }
   }
 
   /// Gets today's total spending
   Future<double> getTodaysTotalSpending() async {
-    final db = await database;
-    final result = await db.rawQuery('''
-      SELECT SUM(price_paid) as total
-      FROM logs
-      WHERE DATE(timestamp) = DATE('now', 'localtime')
-    ''');
+    try {
+      final db = await database;
+      final result = await db.rawQuery('''
+        SELECT SUM(price_paid) as total
+        FROM logs
+        WHERE DATE(timestamp) = DATE('now', 'localtime')
+      ''');
 
-    final total = result.first['total'];
-    return total != null ? (total as num).toDouble() : 0.0;
+      final total = result.first['total'];
+      return total != null ? (total as num).toDouble() : 0.0;
+    } catch (e) {
+      return 0.0;
+    }
   }
 
   /// Gets weekly statistics for a specific week
@@ -471,12 +520,16 @@ class DatabaseHelper {
 
   /// Deletes a log entry
   Future<int> deleteLog(int id) async {
-    final db = await database;
-    return db.delete(
-      'logs',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    try {
+      final db = await database;
+      return await db.delete(
+        'logs',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw Exception('Failed to delete log entry: $e');
+    }
   }
 
   /// Closes the database connection

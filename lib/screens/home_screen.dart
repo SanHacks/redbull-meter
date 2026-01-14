@@ -5,7 +5,6 @@ import '../models/log_with_flavor.dart';
 import '../utils/currency_helper.dart';
 import 'add_drink_screen.dart';
 import 'history_screen.dart';
-import 'manage_flavors_screen.dart';
 import 'settings_screen.dart';
 import 'statistics_screen.dart';
 
@@ -64,15 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const HistoryScreen()),
-    );
-    _loadData();
-  }
-
-  /// Navigates to manage flavors screen and refreshes on return
-  Future<void> _navigateToManageFlavors() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ManageFlavorsScreen()),
     );
     _loadData();
   }
@@ -211,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 'Track your energy drink consumption and stay in control.',
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                 ),
                               ),
                             ],
@@ -264,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 _buildStatColumn(
                                   'Spent',
-                                  '\$${_totalSpending.toStringAsFixed(2)}',
+                                  CurrencyHelper.formatPriceCached(_totalSpending),
                                   Icons.attach_money,
                                   Colors.green,
                                 ),
@@ -312,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: const Color(0xFF1E1E1E),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.05),
+                            color: Colors.white.withValues(alpha: 0.05),
                             width: 1,
                           ),
                         ),
@@ -322,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Container(
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.1),
+                                  color: Colors.green.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -385,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 24, color: color),
@@ -424,7 +414,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -443,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          color: Colors.green.withOpacity(0.2),
+                          color: Colors.green.withValues(alpha: 0.2),
                           child: const Icon(
                             Icons.local_drink,
                             color: Colors.green,
@@ -456,7 +446,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
@@ -552,7 +542,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(

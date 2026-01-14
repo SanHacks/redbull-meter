@@ -1,15 +1,15 @@
-# Monster Meter
+# Red Bull Meter
 
-A mobile app for Android that helps you track your daily Monster Energy drink consumption. Keep tabs on your caffeine intake, spending, and drinking habits with a sleek, dark-themed interface.
+A mobile app for Android that helps you track your daily Red Bull energy drink consumption. Keep tabs on your caffeine intake, spending, and drinking habits with a sleek, dark-themed interface.
 
 ## Features
 
 - **Daily Statistics**: View your daily drink count, total caffeine intake, and spending in real-time
 - **Quick Logging**: Add drinks with flavor selection, price, and customizable date/time
-- **Flavor Management**: Manage your Monster Energy flavors library with images
+- **Flavor Management**: Manage your Red Bull flavors library with images
 - **History & Statistics**: View all-time statistics and historical drink logs grouped by date
 - **Multi-Currency Support**: Choose from 10 different currencies for price tracking
-- **Visual Flavor Display**: See actual Monster Energy can images for each flavor
+- **Visual Flavor Display**: See actual Red Bull can images for each flavor
 - **Local Storage**: All data is stored locally using SQLite - your data stays private
 
 ## Database Structure
@@ -179,19 +179,22 @@ lib/
 
 ## Pre-loaded Flavors
 
-The app comes with these popular Monster Energy flavors pre-configured with images:
+The app comes with these popular Red Bull energy drink flavors pre-configured:
 
-- Original Green (500ml, 160mg caffeine)
-- Pipeline Punch (500ml, 160mg caffeine)
-- Pacific Punch (500ml, 160mg caffeine)
-- Rio Punch (500ml, 160mg caffeine)
-- Mango Loco (500ml, 160mg caffeine)
-- Zero Sugar Ultra (500ml, 140mg caffeine)
-- Zero Sugar Ultra Rosa (500ml, 140mg caffeine)
-- Aussie Lemonade (500ml, 160mg caffeine)
-- Peachy Keen (500ml, 160mg caffeine)
-- The Doctor (500ml, 160mg caffeine)
-- Lando Norris (500ml, 160mg caffeine)
+- Red Bull Original (250ml, 80mg caffeine)
+- Red Bull Sugarfree (250ml, 80mg caffeine)
+- Red Bull Zero (250ml, 80mg caffeine)
+- Red Bull Red Edition (250ml, 80mg caffeine)
+- Red Bull Blue Edition (250ml, 80mg caffeine)
+- Red Bull Yellow Edition (250ml, 80mg caffeine)
+- Red Bull Green Edition (250ml, 80mg caffeine)
+- Red Bull Purple Edition (250ml, 80mg caffeine)
+- Red Bull Peach Edition (250ml, 80mg caffeine)
+- Red Bull Summer Edition (250ml, 80mg caffeine)
+- Red Bull Winter Edition (250ml, 80mg caffeine)
+- Red Bull Amber Edition (250ml, 80mg caffeine)
+
+**Note**: You'll need to add the flavor images manually. See `scripts/README.md` for instructions.
 
 ## Customization
 
@@ -235,4 +238,4 @@ This project is for personal use.
 
 ## Disclaimer
 
-This app is not affiliated with Monster Energy. Monster Energy is a trademark of Monster Energy Company.
+This app is not affiliated with Red Bull. Red Bull is a trademark of Red Bull GmbH. All product names, logos, and brands are property of their respective owners.

@@ -59,5 +59,27 @@ class Log {
       notes: notes ?? this.notes,
     );
   }
+
+  @override
+  String toString() {
+    return 'Log(id: $id, userId: $userId, flavorId: $flavorId, pricePaid: $pricePaid, timestamp: $timestamp, notes: $notes)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Log &&
+        other.id == id &&
+        other.userId == userId &&
+        other.flavorId == flavorId &&
+        other.pricePaid == pricePaid &&
+        other.timestamp == timestamp &&
+        other.notes == notes;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(id, userId, flavorId, pricePaid, timestamp, notes);
+  }
 }
 
