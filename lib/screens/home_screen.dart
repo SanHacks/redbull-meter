@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../database/database_helper.dart';
 import '../models/log_with_flavor.dart';
 import '../utils/currency_helper.dart';
+import '../utils/image_helper.dart';
 import 'add_drink_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
@@ -425,36 +426,13 @@ class _HomeScreenState extends State<HomeScreen> {
             // Flavor image
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: flavor.imagePath != null
-                  ? Image.asset(
-                      flavor.imagePath!,
-                      width: 64,
-                      height: 64,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.green.withValues(alpha: 0.2),
-                          child: const Icon(
-                            Icons.local_drink,
-                            color: Colors.green,
-                            size: 32,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.local_drink,
-                        color: Colors.green,
-                        size: 32,
-                      ),
-                    ),
+              child: ImageHelper.buildFlavorImage(
+                flavor.imagePath,
+                64,
+                64,
+                isActive: true,
+                fallbackColor: Colors.green,
+              ),
             ),
             const SizedBox(width: 16),
             // Content

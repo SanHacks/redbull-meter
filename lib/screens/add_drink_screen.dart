@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import '../database/database_helper.dart';
 import '../models/flavor.dart';
 import '../models/log.dart';
-import '../models/user.dart';
 import '../utils/currency_helper.dart';
+import '../utils/image_helper.dart';
 
 /// Screen for adding a new drink entry
 class AddDrinkScreen extends StatefulWidget {
@@ -197,7 +197,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -209,7 +209,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.2),
+                  color: Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -237,13 +237,13 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
@@ -261,18 +261,14 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (flavor.imagePath != null) ...[
-                      Image.asset(
-                        flavor.imagePath!,
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.local_drink, size: 24);
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                    ],
+                    ImageHelper.buildFlavorImage(
+                      flavor.imagePath,
+                      32,
+                      32,
+                      isActive: true,
+                      fallbackColor: Colors.green,
+                    ),
+                    const SizedBox(width: 12),
                     Flexible(
                       child: Text(
                         flavor.name,
@@ -301,13 +297,13 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.green.withOpacity(0.15),
-                    Colors.blue.withOpacity(0.15),
+                    Colors.green.withValues(alpha: 0.15),
+                    Colors.blue.withValues(alpha: 0.15),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.green.withOpacity(0.2),
+                  color: Colors.green.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -351,7 +347,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -363,7 +359,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.2),
+                  color: Colors.blue.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -430,7 +426,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -442,7 +438,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.2),
+                  color: Colors.purple.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -470,7 +466,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
                       color: const Color(0xFF0F0F0F),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
@@ -495,7 +491,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
                       color: const Color(0xFF0F0F0F),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
@@ -531,7 +527,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00FF00).withOpacity(0.3),
+            color: const Color(0xFF00FF00).withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

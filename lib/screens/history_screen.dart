@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../database/database_helper.dart';
 import '../models/log_with_flavor.dart';
 import '../utils/currency_helper.dart';
+import '../utils/image_helper.dart';
 
 /// Screen displaying drink history and statistics
 class HistoryScreen extends StatefulWidget {
@@ -156,13 +157,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.green.withOpacity(0.1),
-            Colors.blue.withOpacity(0.1),
+            Colors.green.withValues(alpha: 0.1),
+            Colors.blue.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -212,7 +213,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 24, color: color),
@@ -268,7 +269,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             color: const Color(0xFF1E1E1E),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
               width: 1,
             ),
           ),
@@ -285,7 +286,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -318,7 +319,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -328,37 +329,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
           children: [
             // Flavor image
             ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: flavor.imagePath != null
-                    ? Image.asset(
-                        flavor.imagePath!,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.green.withOpacity(0.2),
-                            child: const Icon(
-                              Icons.local_drink,
-                              color: Colors.green,
-                              size: 32,
-                            ),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.local_drink,
-                          color: Colors.green,
-                          size: 32,
-                        ),
-                      ),
+              borderRadius: BorderRadius.circular(16),
+              child: ImageHelper.buildFlavorImage(
+                flavor.imagePath,
+                64,
+                64,
+                isActive: true,
+                fallbackColor: Colors.green,
+              ),
             ),
             const SizedBox(width: 16),
             // Content
@@ -446,7 +424,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(

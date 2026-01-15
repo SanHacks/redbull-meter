@@ -123,8 +123,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundColor: isSelected
-                          ? Colors.green.withOpacity(0.2)
-                          : Colors.grey.withOpacity(0.1),
+                          ? Colors.green.withValues(alpha: 0.2)
+                          : Colors.grey.withValues(alpha: 0.1),
                       child: Text(
                         currency['symbol']!,
                         style: TextStyle(

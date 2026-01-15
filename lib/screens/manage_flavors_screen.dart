@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../database/database_helper.dart';
 import '../models/flavor.dart';
+import '../utils/image_helper.dart';
 
 /// Screen for managing Red Bull energy drink flavors
 class ManageFlavorsScreen extends StatefulWidget {
@@ -37,9 +42,10 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
   /// Shows dialog to add a new flavor
   Future<void> _showAddFlavorDialog() async {
     final nameController = TextEditingController();
-    final mlController = TextEditingController(text: '500');
-    final caffeineController = TextEditingController(text: '140');
+    final mlController = TextEditingController(text: '250');
+    final caffeineController = TextEditingController(text: '80');
     final formKey = GlobalKey<FormState>();
+    String? selectedImagePath;
 
     await showDialog(
       context: context,
@@ -118,6 +124,7 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
                   name: nameController.text,
                   ml: int.parse(mlController.text),
                   caffeineMg: int.parse(caffeineController.text),
+                  imagePath: selectedImagePath,
                 );
                 await _db.createFlavor(flavor);
                 if (context.mounted) {
@@ -140,95 +147,199 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
     final caffeineController =
         TextEditingController(text: flavor.caffeineMg.toString());
     final formKey = GlobalKey<FormState>();
+    String? selectedImagePath = flavor.imagePath;
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Flavor'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Flavor Name',
-                    border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Flavor'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Flavor Name',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a name';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: mlController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Volume (ml)',
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: mlController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Volume (ml)',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter volume';
+                      }
+                      final ml = int.tryParse(value);
+                      if (ml == null || ml <= 0) {
+                        return 'Please enter a valid volume';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter volume';
-                    }
-                    final ml = int.tryParse(value);
-                    if (ml == null || ml <= 0) {
-                      return 'Please enter a valid volume';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: caffeineController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Caffeine (mg)',
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: caffeineController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Caffeine (mg)',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter caffeine amount';
+                      }
+                      final caffeine = int.tryParse(value);
+                      if (caffeine == null || caffeine < 0) {
+                        return 'Please enter a valid amount';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter caffeine amount';
-                    }
-                    final caffeine = int.tryParse(value);
-                    if (caffeine == null || caffeine < 0) {
-                      return 'Please enter a valid amount';
-                    }
-                    return null;
-                  },
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  // Image picker section
+                  Text(
+                    'Flavor Image (Optional)',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  if (selectedImagePath != null) ...[
+                    Container(
+                      height: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: ImageHelper.buildFlavorImage(selectedImagePath!, 200, 100),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            final ImagePicker picker = ImagePicker();
+                            final XFile? image = await picker.pickImage(
+                              source: ImageSource.camera,
+                              imageQuality: 85,
+                            );
+                            if (image != null) {
+                              final appDir = await getApplicationDocumentsDirectory();
+                              final flavorsDir = Directory(path.join(appDir.path, 'user_flavors'));
+                              if (!await flavorsDir.exists()) {
+                                await flavorsDir.create(recursive: true);
+                              }
+                              final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+                              final savedImage = File(path.join(flavorsDir.path, fileName));
+                              await File(image.path).copy(savedImage.path);
+                              setState(() {
+                                selectedImagePath = savedImage.path;
+                              });
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Image captured!')),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.camera_alt),
+                          label: const Text('Take Photo'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            final ImagePicker picker = ImagePicker();
+                            final XFile? image = await picker.pickImage(
+                              source: ImageSource.gallery,
+                              imageQuality: 85,
+                            );
+                            if (image != null) {
+                              final appDir = await getApplicationDocumentsDirectory();
+                              final flavorsDir = Directory(path.join(appDir.path, 'user_flavors'));
+                              if (!await flavorsDir.exists()) {
+                                await flavorsDir.create(recursive: true);
+                              }
+                              final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+                              final savedImage = File(path.join(flavorsDir.path, fileName));
+                              await File(image.path).copy(savedImage.path);
+                              setState(() {
+                                selectedImagePath = savedImage.path;
+                              });
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Image selected!')),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.photo_library),
+                          label: const Text('From Gallery'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (selectedImagePath != null) ...[
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          selectedImagePath = null;
+                        });
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      label: const Text('Remove Image', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState!.validate()) {
-                final updatedFlavor = flavor.copyWith(
-                  name: nameController.text,
-                  ml: int.parse(mlController.text),
-                  caffeineMg: int.parse(caffeineController.text),
-                );
-                await _db.updateFlavor(updatedFlavor);
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  _loadFlavors();
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  final updatedFlavor = flavor.copyWith(
+                    name: nameController.text,
+                    ml: int.parse(mlController.text),
+                    caffeineMg: int.parse(caffeineController.text),
+                    imagePath: selectedImagePath,
+                  );
+                  await _db.updateFlavor(updatedFlavor);
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    _loadFlavors();
+                  }
                 }
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -349,8 +460,8 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: flavor.isActive
-              ? Colors.green.withOpacity(0.2)
-              : Colors.white.withOpacity(0.05),
+              ? Colors.green.withValues(alpha: 0.2)
+              : Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -360,41 +471,13 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
           children: [
             // Flavor image
             ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: flavor.imagePath != null
-                    ? Image.asset(
-                        flavor.imagePath!,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: flavor.isActive
-                                ? Colors.green.withOpacity(0.2)
-                                : Colors.grey.withOpacity(0.2),
-                            child: Icon(
-                              Icons.local_drink,
-                              color: flavor.isActive ? Colors.green : Colors.grey,
-                              size: 32,
-                            ),
-                          );
-                        },
-                      )
-                    : Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          color: flavor.isActive
-                              ? Colors.green.withOpacity(0.2)
-                              : Colors.grey.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Icon(
-                          Icons.local_drink,
-                          color: flavor.isActive ? Colors.green : Colors.grey,
-                          size: 32,
-                        ),
-                      ),
+              borderRadius: BorderRadius.circular(16),
+              child: ImageHelper.buildFlavorImage(
+                flavor.imagePath,
+                64,
+                64,
+                isActive: flavor.isActive,
+              ),
             ),
             const SizedBox(width: 16),
             // Content
@@ -506,5 +589,6 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
       ),
     );
   }
+
 }
 

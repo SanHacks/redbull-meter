@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../database/database_helper.dart';
 import '../utils/currency_helper.dart';
+import '../utils/image_helper.dart';
 
 /// Screen displaying detailed statistics with charts and graphs
 class StatisticsScreen extends StatefulWidget {
@@ -169,7 +170,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             color: const Color(0xFF1E1E1E),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
               width: 1,
             ),
           ),
@@ -192,7 +193,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             color: const Color(0xFF1E1E1E),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
               width: 1,
             ),
           ),
@@ -247,7 +248,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00FF00).withOpacity(0.2)
+              ? const Color(0xFF00FF00).withValues(alpha: 0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: isSelected
@@ -347,13 +348,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            color.withOpacity(0.15),
-            color.withOpacity(0.05),
+            color.withValues(alpha: 0.15),
+            color.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -363,7 +364,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 24, color: color),
@@ -497,7 +498,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             horizontalInterval: maxY / 5,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 strokeWidth: 1,
               );
             },
@@ -555,7 +556,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             horizontalInterval: maxY / 5,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 strokeWidth: 1,
               );
             },
@@ -654,7 +655,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
               belowBarData: BarAreaData(
                 show: true,
-                color: Colors.yellow.withOpacity(0.1),
+                color: Colors.yellow.withValues(alpha: 0.1),
               ),
             ),
           ],
@@ -662,7 +663,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             horizontalLines: [
               HorizontalLine(
                 y: 0,
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 strokeWidth: 1,
               ),
             ],
@@ -794,7 +795,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             horizontalInterval: maxY / 5,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 strokeWidth: 1,
               );
             },
@@ -847,7 +848,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -859,7 +860,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color, size: 20),
@@ -892,7 +893,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -917,7 +918,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           color: const Color(0xFF1E1E1E),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withValues(alpha: 0.05),
             width: 1,
           ),
         ),
@@ -943,7 +944,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
@@ -955,7 +956,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.2),
+                  color: Colors.purple.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -1054,46 +1055,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    if (flavor['imagePath'] != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          flavor['imagePath'] as String,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: colors[index % colors.length]
-                                    .withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.local_drink,
-                                size: 24,
-                                color: colors[index % colors.length],
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                    else
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: colors[index % colors.length].withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.local_drink,
-                          size: 24,
-                          color: colors[index % colors.length],
-                        ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: ImageHelper.buildFlavorImage(
+                        flavor['imagePath'] as String?,
+                        40,
+                        40,
+                        isActive: true,
+                        fallbackColor: colors[index % colors.length],
                       ),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
