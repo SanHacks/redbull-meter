@@ -73,6 +73,10 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
 
       await _db.createLog(log);
 
+      // Update streak
+      final drinkDate = DateFormat('yyyy-MM-dd').format(_selectedDateTime);
+      await _db.updateStreak(user.id!, drinkDate);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Drink logged successfully!')),
@@ -138,6 +142,7 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
       appBar: AppBar(
         title: const Text('Add Drink'),
       ),
+      backgroundColor: const Color(0xFFF5F5F5),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _flavors.isEmpty
@@ -194,12 +199,8 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
-          width: 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,12 +345,8 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
-          width: 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,12 +420,8 @@ class _AddDrinkScreenState extends State<AddDrinkScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
-          width: 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

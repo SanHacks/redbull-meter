@@ -5,6 +5,9 @@ import '../models/user.dart';
 import '../models/flavor.dart';
 import '../models/log.dart';
 import '../models/log_with_flavor.dart';
+import '../models/achievement.dart';
+import '../models/streak.dart';
+import '../models/goal.dart';
 
 /// Helper class for managing SQLite database operations
 class DatabaseHelper {
@@ -27,7 +30,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 4, // Increment version to trigger onUpgrade for Red Bull rebrand
+      version: 5, // Increment version to trigger onUpgrade for gamification features
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -68,6 +71,59 @@ class DatabaseHelper {
         await db.insert('flavors', flavor);
       }
     }
+    
+    if (oldVersion < 5) {
+      // Create achievements table
+      await db.execute('''
+        CREATE TABLE achievements (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          achievement_type TEXT NOT NULL,
+          unlocked_at TEXT,
+          progress INTEGER NOT NULL DEFAULT 0,
+          FOREIGN KEY (user_id) REFERENCES users (id),
+          UNIQUE(user_id, achievement_type)
+        )
+      ''');
+      
+      // Create streaks table
+      await db.execute('''
+        CREATE TABLE streaks (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          current_streak INTEGER NOT NULL DEFAULT 0,
+          longest_streak INTEGER NOT NULL DEFAULT 0,
+          last_drink_date TEXT,
+          FOREIGN KEY (user_id) REFERENCES users (id),
+          UNIQUE(user_id)
+        )
+      ''');
+      
+      // Create goals table
+      await db.execute('''
+        CREATE TABLE goals (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          goal_type TEXT NOT NULL,
+          target_value REAL NOT NULL,
+          current_value REAL NOT NULL DEFAULT 0,
+          period_start TEXT NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users (id),
+          UNIQUE(user_id, goal_type, period_start)
+        )
+      ''');
+      
+      // Initialize streak for default user
+      final defaultUser = await getDefaultUser();
+      if (defaultUser != null) {
+        await db.insert('streaks', {
+          'user_id': defaultUser.id,
+          'current_streak': 0,
+          'longest_streak': 0,
+          'last_drink_date': null,
+        });
+      }
+    }
   }
 
   /// Creates the database tables
@@ -106,6 +162,46 @@ class DatabaseHelper {
       )
     ''');
 
+    // Create achievements table
+    await db.execute('''
+      CREATE TABLE achievements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        achievement_type TEXT NOT NULL,
+        unlocked_at TEXT,
+        progress INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        UNIQUE(user_id, achievement_type)
+      )
+    ''');
+
+    // Create streaks table
+    await db.execute('''
+      CREATE TABLE streaks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        current_streak INTEGER NOT NULL DEFAULT 0,
+        longest_streak INTEGER NOT NULL DEFAULT 0,
+        last_drink_date TEXT,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        UNIQUE(user_id)
+      )
+    ''');
+
+    // Create goals table
+    await db.execute('''
+      CREATE TABLE goals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        goal_type TEXT NOT NULL,
+        target_value REAL NOT NULL,
+        current_value REAL NOT NULL DEFAULT 0,
+        period_start TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        UNIQUE(user_id, goal_type, period_start)
+      )
+    ''');
+
     // Insert default user
     await db.insert('users', {'username': 'default_user'});
 
@@ -127,6 +223,18 @@ class DatabaseHelper {
 
     for (var flavor in defaultFlavors) {
       await db.insert('flavors', flavor);
+    }
+    
+    // Initialize streak for default user
+    final defaultUserMap = await db.query('users', limit: 1);
+    if (defaultUserMap.isNotEmpty) {
+      final defaultUserId = defaultUserMap.first['id'] as int;
+      await db.insert('streaks', {
+        'user_id': defaultUserId,
+        'current_streak': 0,
+        'longest_streak': 0,
+        'last_drink_date': null,
+      });
     }
   }
 
@@ -536,6 +644,414 @@ class DatabaseHelper {
   Future<void> close() async {
     final db = await database;
     db.close();
+  }
+
+  // ACHIEVEMENT OPERATIONS
+
+  /// Gets all achievements for a user
+  Future<List<Achievement>> getAllAchievements(int userId) async {
+    try {
+      final db = await database;
+      final maps = await db.query(
+        'achievements',
+        where: 'user_id = ?',
+        whereArgs: [userId],
+        orderBy: 'unlocked_at DESC, achievement_type ASC',
+      );
+      return maps.map((map) => Achievement.fromMap(map)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Gets a specific achievement for a user
+  Future<Achievement?> getAchievement(int userId, String achievementType) async {
+    try {
+      final db = await database;
+      final maps = await db.query(
+        'achievements',
+        where: 'user_id = ? AND achievement_type = ?',
+        whereArgs: [userId, achievementType],
+        limit: 1,
+      );
+      if (maps.isNotEmpty) {
+        return Achievement.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Creates or updates an achievement
+  Future<Achievement> upsertAchievement(Achievement achievement) async {
+    try {
+      final db = await database;
+      final existing = await getAchievement(achievement.userId, achievement.achievementType);
+      
+      if (existing != null) {
+        // Update existing achievement
+        await db.update(
+          'achievements',
+          achievement.toMap(),
+          where: 'user_id = ? AND achievement_type = ?',
+          whereArgs: [achievement.userId, achievement.achievementType],
+        );
+        return achievement.copyWith(id: existing.id);
+      } else {
+        // Insert new achievement
+        final id = await db.insert('achievements', achievement.toMap());
+        return achievement.copyWith(id: id);
+      }
+    } catch (e) {
+      throw Exception('Failed to upsert achievement: $e');
+    }
+  }
+
+  /// Unlocks an achievement
+  Future<void> unlockAchievement(int userId, String achievementType) async {
+    try {
+      final db = await database;
+      final now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      
+      // Try to update existing achievement
+      final count = await db.rawUpdate('''
+        UPDATE achievements
+        SET unlocked_at = ?, progress = 1
+        WHERE user_id = ? AND achievement_type = ?
+      ''', [now, userId, achievementType]);
+      
+      // If no rows were updated, insert a new achievement
+      if (count == 0) {
+        await db.insert('achievements', {
+          'user_id': userId,
+          'achievement_type': achievementType,
+          'unlocked_at': now,
+          'progress': 1,
+        });
+      }
+    } catch (e) {
+      // If update/insert failed, try insert with ignore
+      try {
+        final db = await database;
+        final now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+        await db.insert('achievements', {
+          'user_id': userId,
+          'achievement_type': achievementType,
+          'unlocked_at': now,
+          'progress': 1,
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+      } catch (e2) {
+        throw Exception('Failed to unlock achievement: $e2');
+      }
+    }
+  }
+
+  /// Updates achievement progress
+  Future<void> updateAchievementProgress(int userId, String achievementType, int progress) async {
+    try {
+      final db = await database;
+      final existing = await getAchievement(userId, achievementType);
+      
+      if (existing != null) {
+        await db.update(
+          'achievements',
+          {'progress': progress},
+          where: 'user_id = ? AND achievement_type = ?',
+          whereArgs: [userId, achievementType],
+        );
+      } else {
+        await db.insert('achievements', {
+          'user_id': userId,
+          'achievement_type': achievementType,
+          'progress': progress,
+          'unlocked_at': null,
+        });
+      }
+    } catch (e) {
+      throw Exception('Failed to update achievement progress: $e');
+    }
+  }
+
+  // STREAK OPERATIONS
+
+  /// Gets the streak for a user
+  Future<Streak?> getCurrentStreak(int userId) async {
+    try {
+      final db = await database;
+      final maps = await db.query(
+        'streaks',
+        where: 'user_id = ?',
+        whereArgs: [userId],
+        limit: 1,
+      );
+      if (maps.isNotEmpty) {
+        return Streak.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Updates the streak when a drink is logged
+  Future<Streak> updateStreak(int userId, String drinkDate) async {
+    try {
+      final db = await database;
+      final streak = await getCurrentStreak(userId);
+      
+      if (streak == null) {
+        // Create new streak
+        final newStreak = Streak(
+          userId: userId,
+          currentStreak: 1,
+          longestStreak: 1,
+          lastDrinkDate: drinkDate,
+        );
+        final id = await db.insert('streaks', newStreak.toMap());
+        return newStreak.copyWith(id: id);
+      }
+
+      final lastDate = streak.lastDrinkDate;
+      int newStreak = 1;
+      
+      if (lastDate != null) {
+        final last = DateTime.parse(lastDate);
+        final current = DateTime.parse(drinkDate);
+        final daysDiff = current.difference(last).inDays;
+        
+        if (daysDiff == 0) {
+          // Same day, don't change streak
+          newStreak = streak.currentStreak;
+        } else if (daysDiff == 1) {
+          // Consecutive day, increment streak
+          newStreak = streak.currentStreak + 1;
+        } else {
+          // Streak broken, reset to 1
+          newStreak = 1;
+        }
+      }
+
+      final longestStreak = newStreak > streak.longestStreak 
+          ? newStreak 
+          : streak.longestStreak;
+
+      final updatedStreak = streak.copyWith(
+        currentStreak: newStreak,
+        longestStreak: longestStreak,
+        lastDrinkDate: drinkDate,
+      );
+
+      await db.update(
+        'streaks',
+        updatedStreak.toMap(),
+        where: 'user_id = ?',
+        whereArgs: [userId],
+      );
+
+      return updatedStreak;
+    } catch (e) {
+      throw Exception('Failed to update streak: $e');
+    }
+  }
+
+  // GOAL OPERATIONS
+
+  /// Gets all goals for a user
+  Future<List<Goal>> getAllGoals(int userId) async {
+    try {
+      final db = await database;
+      final maps = await db.query(
+        'goals',
+        where: 'user_id = ?',
+        whereArgs: [userId],
+        orderBy: 'goal_type ASC, period_start DESC',
+      );
+      return maps.map((map) => Goal.fromMap(map)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Gets a goal for a specific period
+  Future<Goal?> getGoal(int userId, String goalType, String periodStart) async {
+    try {
+      final db = await database;
+      final maps = await db.query(
+        'goals',
+        where: 'user_id = ? AND goal_type = ? AND period_start = ?',
+        whereArgs: [userId, goalType, periodStart],
+        limit: 1,
+      );
+      if (maps.isNotEmpty) {
+        return Goal.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Creates or updates a goal
+  Future<Goal> upsertGoal(Goal goal) async {
+    try {
+      final db = await database;
+      final existing = await getGoal(goal.userId, goal.goalType, goal.periodStart);
+      
+      if (existing != null) {
+        // Update existing goal
+        await db.update(
+          'goals',
+          goal.toMap(),
+          where: 'user_id = ? AND goal_type = ? AND period_start = ?',
+          whereArgs: [goal.userId, goal.goalType, goal.periodStart],
+        );
+        return goal.copyWith(id: existing.id);
+      } else {
+        // Insert new goal
+        final id = await db.insert('goals', goal.toMap());
+        return goal.copyWith(id: id);
+      }
+    } catch (e) {
+      throw Exception('Failed to upsert goal: $e');
+    }
+  }
+
+  /// Updates goal progress
+  Future<void> updateGoalProgress(int userId, String goalType, String periodStart, double value) async {
+    try {
+      final db = await database;
+      await db.rawUpdate('''
+        UPDATE goals
+        SET current_value = ?
+        WHERE user_id = ? AND goal_type = ? AND period_start = ?
+      ''', [value, userId, goalType, periodStart]);
+    } catch (e) {
+      throw Exception('Failed to update goal progress: $e');
+    }
+  }
+
+  /// Deletes a goal
+  Future<int> deleteGoal(int id) async {
+    try {
+      final db = await database;
+      return await db.delete(
+        'goals',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw Exception('Failed to delete goal: $e');
+    }
+  }
+
+  /// Checks and unlocks achievements based on current stats
+  Future<List<String>> checkAndUnlockAchievements(int userId) async {
+    final unlocked = <String>[];
+    
+    try {
+      final db = await database;
+      
+      // Get user stats
+      final totalDrinks = await db.rawQuery('''
+        SELECT COUNT(*) as count FROM logs WHERE user_id = ?
+      ''', [userId]);
+      final drinkCount = (totalDrinks.first['count'] as int?) ?? 0;
+
+      final totalCaffeine = await db.rawQuery('''
+        SELECT SUM(f.caffeine_mg) as total
+        FROM logs l
+        INNER JOIN flavors f ON l.flavor_id = f.id
+        WHERE l.user_id = ?
+      ''', [userId]);
+      final caffeineTotal = (totalCaffeine.first['total'] as num?)?.toInt() ?? 0;
+
+      final uniqueFlavors = await db.rawQuery('''
+        SELECT COUNT(DISTINCT flavor_id) as count
+        FROM logs
+        WHERE user_id = ?
+      ''', [userId]);
+      final flavorCount = (uniqueFlavors.first['count'] as int?) ?? 0;
+
+      final streak = await getCurrentStreak(userId);
+      final streakDays = streak?.currentStreak ?? 0;
+
+      // Check First Wing
+      if (drinkCount >= 1) {
+        final achievement = await getAchievement(userId, 'first_wing');
+        if (achievement == null || !achievement.isUnlocked) {
+          await unlockAchievement(userId, 'first_wing');
+          unlocked.add('first_wing');
+        }
+      }
+
+      // Check Daily Warrior (7-day streak)
+      if (streakDays >= 7) {
+        final achievement = await getAchievement(userId, 'daily_warrior');
+        if (achievement == null || !achievement.isUnlocked) {
+          await unlockAchievement(userId, 'daily_warrior');
+          unlocked.add('daily_warrior');
+        }
+      }
+
+      // Check Weekly Champion (30-day streak)
+      if (streakDays >= 30) {
+        final achievement = await getAchievement(userId, 'weekly_champion');
+        if (achievement == null || !achievement.isUnlocked) {
+          await unlockAchievement(userId, 'weekly_champion');
+          unlocked.add('weekly_champion');
+        }
+      }
+
+      // Check Caffeine Master
+      if (caffeineTotal >= 1000) {
+        final achievement = await getAchievement(userId, 'caffeine_master');
+        if (achievement == null || !achievement.isUnlocked) {
+          await unlockAchievement(userId, 'caffeine_master');
+          unlocked.add('caffeine_master');
+        }
+      }
+
+      // Check Flavor Explorer
+      if (flavorCount >= 5) {
+        final achievement = await getAchievement(userId, 'flavor_explorer');
+        if (achievement == null || !achievement.isUnlocked) {
+          await unlockAchievement(userId, 'flavor_explorer');
+          unlocked.add('flavor_explorer');
+        }
+      }
+
+      // Check Red Bull Fanatic
+      if (drinkCount >= 100) {
+        final achievement = await getAchievement(userId, 'redbull_fanatic');
+        if (achievement == null || !achievement.isUnlocked) {
+          await unlockAchievement(userId, 'redbull_fanatic');
+          unlocked.add('redbull_fanatic');
+        }
+      }
+
+      // Check Collector
+      if (flavorCount >= 12) {
+        final achievement = await getAchievement(userId, 'collector');
+        if (achievement == null || !achievement.isUnlocked) {
+          await unlockAchievement(userId, 'collector');
+          unlocked.add('collector');
+        }
+      }
+
+      // Update progress for in-progress achievements
+      await updateAchievementProgress(userId, 'redbull_fanatic', drinkCount);
+      await updateAchievementProgress(userId, 'caffeine_master', caffeineTotal);
+      await updateAchievementProgress(userId, 'flavor_explorer', flavorCount);
+      await updateAchievementProgress(userId, 'collector', flavorCount);
+      await updateAchievementProgress(userId, 'daily_warrior', streakDays);
+      await updateAchievementProgress(userId, 'weekly_champion', streakDays);
+
+    } catch (e) {
+      // Silently fail - achievements are not critical
+    }
+
+    return unlocked;
   }
 }
 

@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../database/database_helper.dart';
+import '../models/streak.dart';
+import '../models/achievement.dart';
+import '../models/user.dart';
 import '../utils/currency_helper.dart';
 import '../utils/image_helper.dart';
+import 'achievements_screen.dart';
 
 /// Screen displaying detailed statistics with charts and graphs
 class StatisticsScreen extends StatefulWidget {
@@ -20,6 +24,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   List<Map<String, dynamic>> _mostDrankFlavors = [];
   bool _isLoading = true;
   String _selectedPeriod = 'week'; // 'week' or 'month'
+  Streak? _streak;
+  List<Achievement> _achievements = [];
+  User? _user;
   
   // Current week/month being viewed
   late DateTime _currentWeekStart;
@@ -42,20 +49,29 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
 
-    final weekStartStr = DateFormat('yyyy-MM-dd').format(_currentWeekStart);
-    final weekly = await _db.getWeeklyStats(startDate: weekStartStr);
-    final monthly = await _db.getMonthlyStats(
-      year: _currentMonth.year,
-      month: _currentMonth.month,
-    );
-    final flavors = await _db.getMostDrankFlavors();
+    _user = await _db.getDefaultUser();
+    if (_user != null) {
+      final weekStartStr = DateFormat('yyyy-MM-dd').format(_currentWeekStart);
+      final weekly = await _db.getWeeklyStats(startDate: weekStartStr);
+      final monthly = await _db.getMonthlyStats(
+        year: _currentMonth.year,
+        month: _currentMonth.month,
+      );
+      final flavors = await _db.getMostDrankFlavors();
+      final streak = await _db.getCurrentStreak(_user!.id!);
+      final achievements = await _db.getAllAchievements(_user!.id!);
 
-    setState(() {
-      _weeklyStats = weekly;
-      _monthlyStats = monthly;
-      _mostDrankFlavors = flavors;
-      _isLoading = false;
-    });
+      setState(() {
+        _weeklyStats = weekly;
+        _monthlyStats = monthly;
+        _mostDrankFlavors = flavors;
+        _streak = streak;
+        _achievements = achievements;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
   }
 
   /// Navigates to previous week
@@ -119,6 +135,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       appBar: AppBar(
         title: const Text('Statistics'),
       ),
+      backgroundColor: const Color(0xFFF5F5F5),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -139,6 +156,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     _buildSpendingChart(),
                     const SizedBox(height: 24),
                     _buildMostDrankFlavors(),
+                    const SizedBox(height: 24),
+                    if (_streak != null) _buildStreakSection(),
+                    const SizedBox(height: 24),
+                    _buildAchievementsSection(),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -167,12 +188,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: Colors.grey[200],
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.05),
-              width: 1,
-            ),
           ),
           child: Row(
             children: [
@@ -187,48 +204,42 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ),
         const SizedBox(height: 12),
         // Navigation controls
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.05),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left),
-                onPressed: _selectedPeriod == 'week' ? _previousWeek : _previousMonth,
-                color: Colors.white,
-                iconSize: 24,
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: isCurrentPeriod ? null : _resetToCurrent,
-                  child: Text(
-                    periodLabel,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: isCurrentPeriod
-                          ? const Color(0xFF00FF00)
-                          : Colors.white,
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: _selectedPeriod == 'week' ? _previousWeek : _previousMonth,
+                  color: Colors.black87,
+                  iconSize: 24,
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: isCurrentPeriod ? null : _resetToCurrent,
+                    child: Text(
+                      periodLabel,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isCurrentPeriod
+                            ? Colors.black
+                            : Colors.black87,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                onPressed: _selectedPeriod == 'week' ? _nextWeek : _nextMonth,
-                color: Colors.white,
-                iconSize: 24,
-              ),
-            ],
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: _selectedPeriod == 'week' ? _nextWeek : _nextMonth,
+                  color: Colors.black87,
+                  iconSize: 24,
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -248,22 +259,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00FF00).withValues(alpha: 0.2)
+              ? Colors.black
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: isSelected
-              ? Border.all(
-                  color: const Color(0xFF00FF00),
-                  width: 1,
-                )
-              : null,
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: isSelected ? const Color(0xFF00FF00) : Colors.grey[400],
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? Colors.white : Colors.grey[700],
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             fontSize: 16,
           ),
         ),
@@ -341,53 +346,40 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     IconData icon,
     Color color,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: 0.15),
-            color.withValues(alpha: 0.05),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 24, color: color),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[400],
+                letterSpacing: 0.5,
+              ),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 24, color: color),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[400],
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -842,19 +834,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     Color color,
     Widget chart,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             children: [
               Container(
@@ -880,23 +865,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             height: 200,
             child: chart,
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   /// Builds empty chart placeholder
   Widget _buildEmptyChart(String message) {
-    return Container(
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
-          width: 1,
-        ),
-      ),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
       child: Center(
         child: Text(
           message,
@@ -905,6 +884,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             fontSize: 14,
           ),
         ),
+      ),
       ),
     );
   }
@@ -1096,6 +1076,224 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             }).toList(),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Builds the streak section
+  Widget _buildStreakSection() {
+    if (_streak == null) return const SizedBox.shrink();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.orange[50],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.local_fire_department,
+                    color: Colors.orange[700],
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Drinking Streak',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    '${_streak!.currentStreak}',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.orange[700],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Current Streak',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: 1,
+                height: 50,
+                color: Colors.grey[300],
+              ),
+              Column(
+                children: [
+                  Text(
+                    '${_streak!.longestStreak}',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.orange[700],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Longest Streak',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+      ),
+    );
+  }
+
+  /// Builds the achievements section
+  Widget _buildAchievementsSection() {
+    final unlockedCount = _achievements.where((a) => a.isUnlocked).length;
+    final totalCount = Achievement.allTypes.length;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.amber[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.emoji_events,
+                        color: Colors.amber[700],
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Achievements',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AchievementsScreen(),
+                    ),
+                  );
+                },
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    '$unlockedCount',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.amber[700],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Unlocked',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: 1,
+                height: 50,
+                color: Colors.grey[300],
+              ),
+              Column(
+                children: [
+                  Text(
+                    '$totalCount',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Total',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: unlockedCount / totalCount,
+              backgroundColor: Colors.grey[200],
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.amber[700]!),
+              minHeight: 8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${((unlockedCount / totalCount) * 100).toStringAsFixed(0)}% Complete',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
       ),
     );
   }

@@ -102,6 +102,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text('History'),
       ),
+      backgroundColor: const Color(0xFFF5F5F5),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _logs.isEmpty
@@ -153,19 +154,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.green.withValues(alpha: 0.1),
-            Colors.blue.withValues(alpha: 0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.05),
-          width: 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,12 +256,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.05),
-              width: 1,
-            ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [

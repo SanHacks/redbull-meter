@@ -456,12 +456,12 @@ class _ManageFlavorsScreenState extends State<ManageFlavorsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: flavor.isActive
-              ? Colors.green.withValues(alpha: 0.2)
-              : Colors.white.withValues(alpha: 0.05),
+              ? Colors.green.withValues(alpha: 0.3)
+              : Colors.grey[300]!,
           width: 1,
         ),
       ),

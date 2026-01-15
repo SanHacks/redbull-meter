@@ -10,13 +10,13 @@ class CurrencyHelper {
   /// Gets the saved currency symbol
   static Future<String> getCurrencySymbol() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
       _cachedSymbol = prefs.getString(_currencySymbolKey) ?? _defaultCurrencySymbol;
       _isInitialized = true;
       return _cachedSymbol;
     } catch (e) {
       // Return cached value or default if SharedPreferences fails
-      return _cachedSymbol;
+    return _cachedSymbol;
     }
   }
 
@@ -29,8 +29,8 @@ class CurrencyHelper {
   /// Formats a price with the selected currency
   static Future<String> formatPrice(double price) async {
     try {
-      final symbol = await getCurrencySymbol();
-      return '$symbol${price.toStringAsFixed(2)}';
+    final symbol = await getCurrencySymbol();
+    return '$symbol${price.toStringAsFixed(2)}';
     } catch (e) {
       // Fallback to cached symbol
       return '$_cachedSymbol${price.toStringAsFixed(2)}';
